@@ -1,0 +1,1251 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400;1,9..144,500&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg: #F8F5EF;
+  --bg-warm: #EEE8DE;
+  --bg-white: #FFFFFF;
+  --text: #171512;
+  --text-muted: #625C54;
+  --text-light: #81796F;
+  --accent: #B79252;
+  --accent-dark: #8D6A34;
+  --accent-light: #E6D5B4;
+  --border: rgba(23, 21, 18, 0.10);
+  --border-accent: rgba(183, 146, 82, 0.32);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* REMOVED: overscroll-behavior: none — was blocking trackpad momentum scrolling */
+  /* REMOVED: overflow-x: hidden on html — this is the primary cause of blocked wheel/trackpad scrolling.
+     overflow-x: hidden on the root html element causes browsers to treat the document
+     scroll container as overflow:hidden, preventing mouse wheel and trackpad scrolling entirely.
+     Horizontal overflow is now controlled at the body level only. */
+  width: 100%;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  overflow-x: hidden;
+  /* REMOVED: overscroll-behavior: none — was suppressing natural trackpad momentum/bounce */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Prevent horizontal overflow on all devices */
+  width: 100%;
+  max-width: 100vw;
+  /* REMOVED: position: relative — unnecessary and can create stacking context issues */
+  /* Native-like momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+}
+
+.font-serif {
+  font-family: 'Fraunces', serif;
+}
+
+/* Grain texture overlay */
+.grain-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none !important; /* Explicitly block all pointer/touch/wheel events */
+  z-index: 100; /* Lowered from 9999 — was above all interactive elements */
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  /* Ensure it never intercepts scroll, touch, or pointer events */
+  touch-action: none;
+  user-select: none;
+}
+
+/* Typography */
+.heading-display {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 0.92;
+}
+
+.heading-serif {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.label-caps {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+}
+
+/* Reveal animation */
+.reveal-item {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              transform 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  /* Hard fallback: if JS never fires, reveal after 3s */
+  animation: revealFallback 0s 3s forwards;
+}
+
+@keyframes revealFallback {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.reveal-item.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  animation: none;
+}
+
+.reveal-item.delay-1 { transition-delay: 0.15s; }
+.reveal-item.delay-2 { transition-delay: 0.3s; }
+.reveal-item.delay-3 { transition-delay: 0.45s; }
+.reveal-item.delay-4 { transition-delay: 0.6s; }
+
+/* Clip reveal for images */
+.clip-reveal {
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 1.6s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+.clip-reveal.is-visible {
+  clip-path: inset(0 0% 0 0);
+}
+
+/* Image hover */
+.img-hover-zoom {
+  overflow: hidden;
+}
+
+.img-hover-zoom img {
+  transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              filter 1.2s ease;
+}
+
+.img-hover-zoom:hover img {
+  transform: scale(1.04);
+}
+
+/* Marquee */
+@keyframes marquee-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.marquee-track {
+  animation: marquee-left 30s linear infinite;
+  display: inline-flex;
+  white-space: nowrap;
+}
+
+/* Gold line divider */
+.gold-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+
+/* Product card */
+.product-card {
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  transition: box-shadow 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              border-color 0.4s ease,
+              transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.product-card:hover {
+  box-shadow: 0 20px 60px -20px rgba(28, 25, 23, 0.12);
+  border-color: var(--border-accent);
+  transform: scale(1.03);
+}
+
+/* Button styles */
+.btn-primary {
+  background: var(--text);
+  color: #F6F1E8;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  padding: 18px 44px;
+  border: 1.5px solid var(--text);
+  transition: background 0.3s ease, color 0.3s ease;
+  display: inline-block;
+}
+
+.btn-primary:hover {
+  background: var(--accent-dark);
+  border-color: var(--accent-dark);
+}
+
+.btn-outline {
+  border: 1.5px solid var(--text);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  padding: 17px 44px;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  display: inline-block;
+}
+
+.btn-outline:hover {
+  background: var(--text);
+  color: #F6F1E8;
+}
+
+.btn-gold {
+  border: 1.5px solid var(--accent);
+  color: var(--accent-dark);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  padding: 17px 44px;
+  transition: background 0.3s ease, color 0.3s ease;
+  display: inline-block;
+}
+
+.btn-gold:hover {
+  background: var(--accent);
+  color: #F6F1E8;
+}
+
+/* Hero CTA buttons — full width on mobile, auto on desktop */
+.btn-primary-hero {
+  background: var(--accent);
+  color: #211B18;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  padding: 16px 32px;
+  border: 1.5px solid var(--accent);
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease, color 0.3s ease;
+  width: 100%;
+}
+
+.btn-primary-hero:hover {
+  background: var(--accent-dark);
+  border-color: var(--accent-dark);
+  color: #211B18;
+}
+
+.btn-outline-hero {
+  background: transparent;
+  color: rgba(255,255,255,0.75);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  padding: 16px 32px;
+  border: 1.5px solid rgba(255,255,255,0.35);
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  width: 100%;
+}
+
+.btn-outline-hero:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.6);
+  color: white;
+}
+
+@media (min-width: 640px) {
+  .btn-primary-hero,
+  .btn-outline-hero {
+    width: auto;
+  }
+}
+
+/* Product card luxury — with hover zoom + soft shadow */
+.product-card-luxury {
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  transition: box-shadow 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              border-color 0.4s ease;
+}
+
+.product-card-luxury:hover {
+  box-shadow: 0 16px 48px -12px rgba(28, 25, 23, 0.14);
+  border-color: var(--border-accent);
+}
+
+/* ─── Central Container System ─── */
+.container-site {
+  width: 93%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 768px) {
+  .container-site {
+    width: 90%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-site {
+    width: 100%;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Nav */
+.nav-glass {
+  background: rgba(246, 241, 232, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Configurator */
+.config-option {
+  border: 1px solid var(--border);
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.config-option:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.config-option.active {
+  border-color: var(--text);
+  background: var(--text);
+  color: #F6F1E8;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-accent);
+  border-radius: 3px;
+}
+
+/* WhatsApp float */
+.whatsapp-float {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999;
+  width: 52px;
+  height: 52px;
+  background: #25D366;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.whatsapp-float:hover {
+  transform: scale(1.08);
+  box-shadow: 0 12px 32px rgba(37, 211, 102, 0.4);
+}
+
+/* Selection */
+::selection {
+  background: var(--accent-light);
+}
+
+@media (max-width: 768px) {
+  .heading-display {
+    line-height: 0.95;
+  }
+
+  /* Section spacing on mobile */
+  section {
+    scroll-margin-top: 60px;
+  }
+
+  /* Ensure images use centered crop on mobile */
+  img {
+    object-position: center center;
+  }
+
+  /* Config options — full width stacked on mobile */
+  .config-option {
+    padding: 14px 16px;
+    font-size: 14px;
+    min-height: 48px;
+  }
+
+  /* Buttons full width on mobile product pages */
+  .btn-primary-mobile-full,
+  .btn-outline-mobile-full {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+
+  /* Responsive section padding */
+  section {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  /* ── MOBILE VIEWPORT LOCK ── */
+  /* Prevent horizontal overflow — do NOT set overflow-x:hidden on html (blocks wheel scroll) */
+  body,
+  main,
+  section,
+  article {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  img,
+  video,
+  iframe {
+    max-width: 100%;
+  }
+
+  /* Ensure containers stay within viewport */
+  .container-site {
+    max-width: 100vw !important;
+  }
+
+  /* ── TOUCH TARGETS ── */
+  /* Minimum 44px touch targets for all interactive elements */
+  button,
+  a,
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Exception: inline text links don't need min-width */
+  p a,
+  span a,
+  li a {
+    min-width: unset;
+  }
+
+  /* ── SMOOTH NATIVE SCROLLING ── */
+  .overflow-y-auto,
+  .overflow-y-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* ── PRODUCT CARDS MOBILE ── */
+  .product-card,
+  .product-card-luxury {
+    /* Disable scale transform on mobile — causes layout shifts */
+    transform: none !important;
+    /* Use shadow only for hover feedback */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .product-card:active,
+  .product-card-luxury:active {
+    box-shadow: 0 8px 24px -8px rgba(28, 25, 23, 0.15);
+    border-color: var(--border-accent);
+  }
+
+  /* ── BUTTONS MOBILE ── */
+  .btn-primary,
+  .btn-outline,
+  .btn-gold {
+    padding: 16px 28px;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  /* ── FORM INPUTS MOBILE ── */
+  input,
+  textarea,
+  select {
+    font-size: 16px !important; /* Prevent iOS zoom on focus */
+    -webkit-appearance: none;
+    border-radius: 0;
+  }
+
+  /* ── IMAGES MOBILE ── */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* ── PREVENT TEXT OVERFLOW ── */
+  h1, h2, h3, h4, h5, h6 {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    hyphens: auto;
+  }
+
+  /* ── MOBILE HEADER GLASS ── */
+  .nav-glass {
+    background: rgba(246, 241, 232, 0.96);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  /* ── MOBILE PAGE TRANSITIONS ── */
+  main {
+    animation: mobileFadeIn 0.25s ease-out;
+  }
+
+  @keyframes mobileFadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SCROLLBAR HIDDEN ON MOBILE ── */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* ── MARQUEE OVERFLOW FIX ── */
+  .marquee-track {
+    max-width: none; /* Allow marquee to scroll naturally */
+  }
+
+  /* ── WHATSAPP FLOAT MOBILE ── */
+  .whatsapp-float {
+    bottom: 16px;
+    right: 16px;
+    width: 52px;
+    height: 52px;
+  }
+}
+
+@media (max-width: 480px) {
+  .whatsapp-float {
+    bottom: 20px;
+    right: 20px;
+    width: 48px;
+    height: 48px;
+  }
+
+  /* Extra small screens — tighter spacing */
+  .btn-primary,
+  .btn-outline,
+  .btn-gold {
+    padding: 14px 20px;
+    font-size: 10px;
+  }
+
+  /* Prevent heading overflow on very small screens */
+  .heading-display {
+    font-size: clamp(1.8rem, 8vw, 3rem) !important;
+    overflow-wrap: break-word;
+  }
+}
+
+/* ── MOBILE-SPECIFIC UTILITY CLASSES ── */
+
+/* Hide horizontal scrollbar everywhere */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Touch-friendly tap highlight removal */
+.tap-transparent {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Safe area insets for notched phones */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Mobile slide-up animation for menus/drawers */
+@keyframes slideUpMobile {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.mobile-slide-up {
+  animation: slideUpMobile 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Smooth header transition */
+@keyframes headerFadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Price nowrap */
+.price-nowrap {
+  white-space: nowrap;
+}
+
+/* ── MOBILE BOTTOM NAV SPACING ── */
+/* Push footer and page content above the bottom nav on mobile */
+@media (max-width: 767px) {
+  /* WhatsApp float — move above bottom nav */
+  .whatsapp-float {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 76px) !important;
+    right: 16px;
+  }
+
+  /* AI chat widget — move above bottom nav */
+  .ai-chat-toggle {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 76px) !important;
+  }
+  .ai-chat-panel {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 148px) !important;
+  }
+
+  /* Footer bottom padding on mobile */
+  footer {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 80px) !important;
+  }
+
+  /* Prevent product card scale on mobile — causes layout shifts */
+  .product-card:hover,
+  .product-card-luxury:hover {
+    transform: none !important;
+  }
+
+  /* Swipe gallery touch area */
+  .swipe-gallery-container {
+    touch-action: pan-y pinch-zoom;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Mobile section padding — tighter */
+  section {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  /* ── HOMEPAGE SECTION VERTICAL SPACING — reduce content density on mobile ── */
+  /* Clamp large py values so sections don't feel too spread out */
+  .homepage-section-spacing {
+    padding-top: 40px !important;
+    padding-bottom: 40px !important;
+  }
+
+  /* Prevent any element from causing horizontal overflow */
+  body,
+  main,
+  section,
+  article {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  img,
+  video,
+  iframe {
+    max-width: 100%;
+  }
+
+  /* Mobile heading size clamp */
+  .heading-display {
+    font-size: clamp(1.75rem, 7.5vw, 3.5rem) !important;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  /* Mobile active states for premium feel */
+  button:active,
+  a:active {
+    opacity: 0.85;
+    transform: scale(0.98);
+    transition: opacity 0.1s ease, transform 0.1s ease;
+  }
+
+  /* Exception: bottom nav items */
+  nav button:active,
+  nav a:active {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* ── TABLET UX (768px – 1023px) ── */
+/* Mirror the mobile app-like experience on tablet */
+@media (min-width: 768px) and (max-width: 1023px) {
+  /* Footer bottom padding — above bottom nav */
+  footer {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 88px) !important;
+  }
+
+  /* WhatsApp float — move above bottom nav */
+  .whatsapp-float {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 84px) !important;
+    right: 20px;
+  }
+
+  /* AI chat widget — move above bottom nav */
+  .ai-chat-toggle {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 84px) !important;
+  }
+  .ai-chat-panel {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 160px) !important;
+  }
+
+  /* Swipe gallery touch area */
+  .swipe-gallery-container {
+    touch-action: pan-y pinch-zoom;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Tablet heading size */
+  .heading-display {
+    font-size: clamp(2.5rem, 5vw, 4.5rem) !important;
+  }
+
+  /* Tablet touch targets */
+  button,
+  a,
+  [role="button"] {
+    min-height: 44px;
+  }
+
+  /* Tablet active states for premium feel */
+  button:active,
+  a:active {
+    opacity: 0.88;
+    transform: scale(0.99);
+    transition: opacity 0.1s ease, transform 0.1s ease;
+  }
+
+  /* Exception: bottom nav items */
+  nav button:active,
+  nav a:active {
+    transform: none;
+    opacity: 1;
+  }
+
+  /* Tablet product cards — no scale hover (touch device) */
+  .product-card:hover,
+  .product-card-luxury:hover {
+    transform: none !important;
+  }
+
+  .product-card:active,
+  .product-card-luxury:active {
+    box-shadow: 0 8px 24px -8px rgba(28, 25, 23, 0.15);
+    border-color: var(--border-accent);
+  }
+
+  /* Tablet buttons */
+  .btn-primary,
+  .btn-outline,
+  .btn-gold {
+    padding: 17px 36px;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  /* Tablet form inputs — prevent iOS zoom */
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+    -webkit-appearance: none;
+  }
+
+  /* Tablet page transition */
+  main {
+    animation: tabletFadeIn 0.3s ease-out;
+  }
+
+  @keyframes tabletFadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Tablet nav glass */
+  .nav-glass {
+    background: rgba(246, 241, 232, 0.96);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  /* Smooth native scrolling on tablet */
+  .overflow-y-auto,
+  .overflow-y-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* Prevent horizontal overflow — do NOT set overflow-x:hidden on html (blocks wheel scroll) */
+  body,
+  main,
+  section,
+  article {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  img,
+  video,
+  iframe {
+    max-width: 100%;
+  }
+
+  .container-site {
+    max-width: 100vw !important;
+  }
+
+  /* Homepage section spacing — less dense on tablet */
+  section {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+}
+
+/* Hero scroll indicator — CSS-only animation, no JS reflow */
+@keyframes heroScrollLine {
+  0% { transform: translateY(-100%); opacity: 1; }
+  100% { transform: translateY(100%); opacity: 0; }
+}
+
+.hero-scroll-line {
+  animation: heroScrollLine 2s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* ==========================================================
+   DETARA LUXURY VISUAL SYSTEM
+   Mobile-first, restrained, editorial, and jewellery-focused.
+   ========================================================== */
+
+::selection {
+  background: rgba(183, 146, 82, 0.22);
+  color: var(--text);
+}
+
+a, button, input, select, textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button, a {
+  transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Fine, consistent luxury borders instead of heavy UI chrome. */
+hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+/* Refined form controls: neutral, square-edged, minimal and accessible. */
+input:not([type='checkbox']):not([type='radio']),
+select,
+textarea {
+  border-radius: 0;
+  font-family: 'DM Sans', sans-serif;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* Premium product photography treatment — never cartoonish or over-filtered. */
+.product-card img,
+.img-hover-zoom img {
+  image-rendering: auto;
+  backface-visibility: hidden;
+}
+
+/* Keep motion subtle and respect accessibility preferences. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Mobile-first spacing and touch targets. */
+@media (max-width: 639px) {
+  .heading-display { line-height: 0.98; }
+  .label-caps { letter-spacing: 0.28em; }
+  .btn-primary,
+  .btn-outline,
+  .btn-gold {
+    min-height: 48px;
+    padding: 15px 24px;
+  }
+
+  /* Hover-only zoom feels jumpy on touch devices; keep photography stable. */
+  .img-hover-zoom:hover img,
+  .product-card:hover {
+    transform: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .product-card:hover {
+    transform: translateY(-3px);
+  }
+}
+
+/* ==========================================================
+   DETARA LUXURY MOTION SYSTEM
+   Cinematic, minimal, premium — jewellery-brand quality.
+   GPU-friendly: only transform + opacity animated.
+   Respects prefers-reduced-motion (see bottom of file).
+   ========================================================== */
+
+/* ── Keyframes ─────────────────────────────────────────── */
+
+@keyframes luxFadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes luxFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes luxFadeScale {
+  from { opacity: 0; transform: scale(0.97) translateY(16px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes luxSlideRight {
+  from { opacity: 0; transform: translateX(-24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes luxGoldLineGrow {
+  from { transform: scaleX(0); transform-origin: left; }
+  to   { transform: scaleX(1); transform-origin: left; }
+}
+
+@keyframes luxPageEnter {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes heroKenBurns {
+  0%   { transform: scale(1.0); }
+  100% { transform: scale(1.06); }
+}
+
+/* ── Hero cinematic entrance ───────────────────────────── */
+
+.hero-label-enter {
+  animation: luxFadeIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  animation-delay: 0.2s;
+}
+
+.hero-title-enter {
+  animation: luxFadeUp 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  animation-delay: 0.45s;
+}
+
+.hero-subtitle-enter {
+  animation: luxFadeUp 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  animation-delay: 0.7s;
+}
+
+.hero-desc-enter {
+  animation: luxFadeIn 0.8s ease both;
+  animation-delay: 0.9s;
+}
+
+.hero-divider-enter {
+  animation: luxGoldLineGrow 0.8s cubic-bezier(0.77, 0, 0.175, 1) both;
+  animation-delay: 1.05s;
+}
+
+.hero-cta-enter {
+  animation: luxFadeUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  animation-delay: 1.2s;
+}
+
+.hero-scroll-indicator-enter {
+  animation: luxFadeIn 1s ease both;
+  animation-delay: 1.8s;
+}
+
+/* Subtle Ken Burns on hero background image */
+.hero-bg-motion {
+  animation: heroKenBurns 12s ease-out both;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+/* ── Scroll-triggered reveal variants ─────────────────── */
+
+/* Base: fade + translate up (default reveal-item already handles this) */
+/* Extended variants for more nuance */
+
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.97) translateY(20px);
+  transition: opacity 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              transform 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  animation: revealFallback 0s 3s forwards;
+}
+
+.reveal-scale.is-visible {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  animation: none;
+}
+
+.reveal-fade {
+  opacity: 0;
+  transition: opacity 0.85s ease;
+  animation: revealFallback 0s 3s forwards;
+}
+
+.reveal-fade.is-visible {
+  opacity: 1;
+  animation: none;
+}
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-28px);
+  transition: opacity 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              transform 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  animation: revealFallback 0s 3s forwards;
+}
+
+.reveal-left.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+  animation: none;
+}
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(28px);
+  transition: opacity 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              transform 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  animation: revealFallback 0s 3s forwards;
+}
+
+.reveal-right.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+  animation: none;
+}
+
+/* Stagger delays for child elements */
+.stagger-1 { transition-delay: 0.1s; }
+.stagger-2 { transition-delay: 0.2s; }
+.stagger-3 { transition-delay: 0.32s; }
+.stagger-4 { transition-delay: 0.44s; }
+.stagger-5 { transition-delay: 0.56s; }
+.stagger-6 { transition-delay: 0.68s; }
+
+/* ── Navigation link hover refinement ─────────────────── */
+
+.nav-link-luxury {
+  position: relative;
+  transition: color 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              opacity 0.3s ease;
+}
+
+.nav-link-luxury::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+.nav-link-luxury:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* ── Product card luxury hover ─────────────────────────── */
+
+/* Enhance existing product-card-luxury with image zoom */
+.product-card-luxury .product-img-wrap {
+  overflow: hidden;
+}
+
+.product-card-luxury .product-img-wrap img,
+.product-card-luxury .product-img-wrap > div {
+  transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+}
+
+.product-card-luxury:hover .product-img-wrap img,
+.product-card-luxury:hover .product-img-wrap > div {
+  transform: scale(1.04);
+}
+
+.product-card-luxury .product-info-reveal {
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              opacity 0.5s ease;
+}
+
+/* ── Button hover refinement ───────────────────────────── */
+
+.btn-primary,
+.btn-outline,
+.btn-gold,
+.btn-primary-hero,
+.btn-outline-hero {
+  transform: translateY(0);
+  transition: background 0.3s ease,
+              color 0.3s ease,
+              border-color 0.3s ease,
+              transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              box-shadow 0.3s ease;
+}
+
+.btn-primary:hover,
+.btn-outline:hover,
+.btn-gold:hover,
+.btn-primary-hero:hover,
+.btn-outline-hero:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -8px rgba(28, 25, 23, 0.18);
+}
+
+.btn-primary:active,
+.btn-outline:active,
+.btn-gold:active,
+.btn-primary-hero:active,
+.btn-outline-hero:active {
+  transform: translateY(0px) scale(0.99);
+  box-shadow: none;
+}
+
+/* ── Footer reveal ─────────────────────────────────────── */
+
+.footer-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              transform 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  animation: revealFallback 0s 3.5s forwards;
+}
+
+.footer-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  animation: none;
+}
+
+/* Footer link hover */
+footer a {
+  transition: color 0.3s ease, opacity 0.3s ease;
+}
+
+/* ── Image gallery smooth transition ──────────────────── */
+
+.gallery-img-transition {
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ── Announcement bar entrance ─────────────────────────── */
+
+.announcement-bar {
+  animation: luxFadeIn 0.6s ease both;
+  animation-delay: 0.1s;
+}
+
+/* ── Page-level entrance ───────────────────────────────── */
+
+.page-enter {
+  animation: luxPageEnter 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+/* ── Product detail entrance ───────────────────────────── */
+
+.product-detail-enter {
+  animation: luxFadeUp 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+.product-detail-enter-delay-1 {
+  animation: luxFadeUp 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  animation-delay: 0.12s;
+}
+
+.product-detail-enter-delay-2 {
+  animation: luxFadeUp 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  animation-delay: 0.24s;
+}
+
+.product-detail-enter-delay-3 {
+  animation: luxFadeUp 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  animation-delay: 0.36s;
+}
+
+/* ── Reduced motion overrides ──────────────────────────── */
+/* The existing @media (prefers-reduced-motion: reduce) block at the
+   bottom of this file already disables all animations/transitions.
+   No additional overrides needed here. */
